@@ -10,4 +10,6 @@ public interface IShowsService {
 	 * @return List<show>
 	 */
 	List<show> obtenerShows(String search_query);
+	
+	show consultaShow(Long show_id);
 }

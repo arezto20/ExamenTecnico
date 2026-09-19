@@ -6,6 +6,7 @@ package com.tecnico.examen.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -31,6 +32,13 @@ public class examenController {
 	public ResponseEntity obtenerShows(@RequestParam("q") String search_query) {
 		//Se inicia el recurso de búsqueda
 		return new ResponseEntity(iShowsService.obtenerShows(search_query), HttpStatus.OK);
+	}
+	
+	@GetMapping(pathsConstants.PATH_SHOWS)
+	@ResponseStatus(value = HttpStatus.OK)
+	public ResponseEntity consultaShow(@PathVariable("show_id") Long show_id) {
+		//Se inicia el recurso de búsqueda
+		return new ResponseEntity(iShowsService.consultaShow(show_id), HttpStatus.OK);
 	}
 	
 }

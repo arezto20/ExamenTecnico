@@ -3,7 +3,11 @@ package com.tecnico.examen.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.tecnico.examen.model.show;
 import com.tecnico.examen.service.IShowsService;
@@ -38,5 +42,29 @@ public class IShowsServiceImpl implements IShowsService {
 		listaShows = lectorJson.obtenerListaShows(cadenaJson); 
 		
 		return listaShows;
+	}
+	
+	public show consultaShow(Long show_id) {
+		// Se crea el objeto shows
+		show show = new show();
+		
+		// Se crea la cadena json
+		String cadenaJson = "";
+		
+		// Se consulta los shows desde el API  TV Maze
+		cadenaJson = tvMazeService.consultarShow(show_id);
+		
+		try {
+			// Se crea un objeto para mapear la respuesta
+			ObjectMapper objectMapper = new ObjectMapper();
+			
+			// Conversión a un objeto individual
+			show = objectMapper.readValue(cadenaJson, show.class);
+		} catch (Exception e) {
+			// TODO: handle exception
+        	throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al procesar la respuesta JSON: " + e.getMessage(), e);
+		}
+		
+		return show;
 	}
 }
