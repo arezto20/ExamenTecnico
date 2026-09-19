@@ -1,8 +1,10 @@
 package com.tecnico.examen.service.impl;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -10,7 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.tecnico.examen.model.CommentDetail;
+import com.tecnico.examen.model.ShowComment;
 import com.tecnico.examen.model.show;
+import com.tecnico.examen.repository.CommentRepository;
 import com.tecnico.examen.repository.showsRepository;
 import com.tecnico.examen.service.IShowsService;
 import com.tecnico.examen.util.LectorJson;
@@ -25,6 +30,7 @@ public class IShowsServiceImpl implements IShowsService {
 	private final TvMazeService tvMazeService;
 	private final showsRepository showRepository;
 	private final LectorJson lectorJson;
+	private final CommentRepository commentRepository;
 		
 	/**
 	 * @param search_query
@@ -42,7 +48,22 @@ public class IShowsServiceImpl implements IShowsService {
 		cadenaJson = tvMazeService.buscarShows(search_query);
 		
 		// Se llena la lista de shows con la cadena json
-		listaShows = lectorJson.obtenerListaShows(cadenaJson); 
+		listaShows = lectorJson.obtenerListaShows(cadenaJson);
+		
+		// Se recorre la lista de comentarios
+		for (show s : listaShows) {
+			List<ShowComment> listaComentarios = new ArrayList<>();
+			
+			// Se buscan los comentarios asociados a este showId en MongoDB
+	        List<ShowComment> listaComentariosMongo = commentRepository.findByShowId(s.getId());
+	        
+	        List<CommentDetail> listaComentariosDto = new ArrayList<>();
+	        // Si la lista no está vacia
+	        if (!listaComentariosMongo.isEmpty()) {
+	        	listaComentariosDto = listaComentariosMongo.stream().map(c -> new CommentDetail(c.getComment(), c.getRating())).collect(Collectors.toList());
+			}
+	        s.setComments(listaComentariosDto);
+		}
 		
 		return listaShows;
 	}

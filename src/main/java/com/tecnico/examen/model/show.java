@@ -29,6 +29,7 @@ public class show {
 	private String channel;
 	private String summary;
 	private List<String> genres;
+	private List<CommentDetail> comments;
 	
 	private String status;
 	private String url;
