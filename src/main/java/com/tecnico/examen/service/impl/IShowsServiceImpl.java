@@ -52,17 +52,8 @@ public class IShowsServiceImpl implements IShowsService {
 		
 		// Se recorre la lista de comentarios
 		for (show s : listaShows) {
-			List<ShowComment> listaComentarios = new ArrayList<>();
-			
-			// Se buscan los comentarios asociados a este showId en MongoDB
-	        List<ShowComment> listaComentariosMongo = commentRepository.findByShowId(s.getId());
-	        
-	        List<CommentDetail> listaComentariosDto = new ArrayList<>();
-	        // Si la lista no está vacia
-	        if (!listaComentariosMongo.isEmpty()) {
-	        	listaComentariosDto = listaComentariosMongo.stream().map(c -> new CommentDetail(c.getComment(), c.getRating())).collect(Collectors.toList());
-			}
-	        s.setComments(listaComentariosDto);
+			// Funcion para llenar los comentarios
+			s.setComments(llenarComentarios(s.getId()));
 		}
 		
 		return listaShows;
@@ -77,6 +68,9 @@ public class IShowsServiceImpl implements IShowsService {
 		
 		if (showEnCache.isPresent()) {
 			show = showEnCache.get();
+			
+			// Funcion para llenar los comentarios
+			show.setComments(llenarComentarios(show_id));
 			return show; 
 		}
 		
@@ -100,6 +94,24 @@ public class IShowsServiceImpl implements IShowsService {
         	throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al procesar la respuesta JSON: " + e.getMessage(), e);
 		}
 		
+		// Funcion para llenar los comentarios
+		show.setComments(llenarComentarios(show_id));
+		
 		return show;
+	}
+	
+	private List<CommentDetail> llenarComentarios(Long show_id) {
+		List<ShowComment> listaComentarios = new ArrayList<>();
+		
+		// Se buscan los comentarios asociados a este showId en MongoDB
+        List<ShowComment> listaComentariosMongo = commentRepository.findByShowId(show_id);
+        
+        List<CommentDetail> listaComentariosDto = new ArrayList<>();
+        // Si la lista no está vacia
+        if (!listaComentariosMongo.isEmpty()) {
+        	listaComentariosDto = listaComentariosMongo.stream().map(c -> new CommentDetail(c.getComment(), c.getRating())).collect(Collectors.toList());
+		}
+        
+        return listaComentariosDto;
 	}
 }
